@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 120" width="1280" height="120" role="img" aria-label="wave divider">
+  <defs>
+    <linearGradient id="wv" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#0284c7"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .w1 { animation: slide 9s linear infinite; }
+    .w2 { animation: slide 14s linear infinite reverse; }
+    @keyframes slide { from { transform: translateX(0); } to { transform: translateX(-320px); } }
+  </style>
+  <g>
+    <g class="w1">
+      <path d="M0,70 C80,50 160,50 240,70 C320,90 400,90 480,70 C560,50 640,50 720,70 C800,90 880,90 960,70 C1040,50 1120,50 1200,70 C1280,90 1360,90 1440,70 L1440,120 L0,120 Z" fill="url(#wv)" opacity="0.35"/>
+      <path d="M-320,70 C-240,50 -160,50 -80,70 C0,90 80,90 160,70 C240,50 320,50 400,70 C480,90 560,90 640,70 C720,50 800,50 880,70 C960,90 1040,90 1120,70 L1120,120 L-320,120 Z" fill="url(#wv)" opacity="0.35"/>
+    </g>
+    <g class="w2">
+      <path d="M0,86 C80,70 160,70 240,86 C320,102 400,102 480,86 C560,70 640,70 720,86 C800,102 880,102 960,86 C1040,70 1120,70 1200,86 C1280,102 1360,102 1440,86 L1440,120 L0,120 Z" fill="url(#wv)" opacity="0.55"/>
+      <path d="M-320,86 C-240,70 -160,70 -80,86 C0,102 80,102 160,86 C240,70 320,70 400,86 C480,102 560,102 640,86 C720,70 800,70 880,86 C960,102 1040,102 1120,86 L1120,120 L-320,120 Z" fill="url(#wv)" opacity="0.55"/>
+    </g>
+  </g>
+  <text x="640" y="52" text-anchor="middle" font-family="'Noto Sans Myanmar','Myanmar Text','Myanmar Sangam MN','Padauk',Verdana,sans-serif" font-size="22" fill="#7dd3fc" letter-spacing="6">မိုးလေဝသ ကောင်းပါစေ ☀</text>
+</svg>
