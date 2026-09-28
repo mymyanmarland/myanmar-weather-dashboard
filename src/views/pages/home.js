@@ -63,8 +63,12 @@ function homePage(ctx, data) {
     : `<section class="card"><p class="error">${esc(t("common.error"))}</p></section>`;
 
   // Weather-reactive page background: body class + animated sky layer.
+  // Falls back to a neutral cloudy-day sky when live data is unavailable,
+  // so the page still has atmosphere in its graceful-degraded state.
   if (data.current && data.current.data) {
     ctx.bodyClass = `sky-${skyTheme(data.current.data.weatherCode, data.current.data.isDay)}`;
+  } else {
+    ctx.bodyClass = "sky-cloudy-day";
   }
 
   const hourlyHtml = data.hourly && data.hourly.data ? hourlyList(ctx, data.hourly.data) : "";
