@@ -23,6 +23,7 @@ function layout(ctx, bodyHtml) {
   const { lang, t, user, prefs, title, active } = ctx;
   const scripts = ctx.scripts || [];
   const flash = ctx.flash || null;
+  const bodyClass = ctx.bodyClass ? ` class="${esc(ctx.bodyClass)}"` : "";
 
   const langSwitch = `
     <form class="langswitch" method="post" action="/api/prefs" aria-label="${esc(t("settings.language"))}">
@@ -55,7 +56,7 @@ function layout(ctx, bodyHtml) {
 <link rel="stylesheet" href="/css/style.css">
 ${themeInitScript(prefs)}
 </head>
-<body>
+<body${bodyClass}>
 <a class="skip" href="#main">${esc(t("common.viewAll")) === "View all" ? "Skip to content" : "အဓိကအကြောင်းအရာသို့ ကျော်ရန်"}</a>
 <header class="siteheader">
   <div class="wrap headerrow">

@@ -212,6 +212,34 @@ router.post("/api/admin/announcements", requireAuth, requireAdmin, (req, res) =>
   res.redirect("/admin");
 });
 
+// --- Account password change ---------------------------------------------------
+const pwChangeLimiter = rateLimit({ limit: 10, windowMs: 10 * 60 * 1000, keyPrefix: "pwchange" });
+
+router.post("/api/account/password", requireAuth, pwChangeLimiter, (req, res) => {
+  const db = dbOf(req);
+  const current = String(req.body.currentPassword || "");
+  const next = String(req.body.newPassword || "");
+  const confirm = String(req.body.confirmPassword || "");
+  if (next !== confirm) return res.redirect("/settings?err=auth.passwordMismatch");
+  const v = validate.password(next);
+  if (!v.ok) return res.redirect("/settings?err=auth.passwordTooShort");
+  const row = db.prepare("SELECT password_hash FROM users WHERE id = ?").get(req.user.id);
+  // timing-safe scrypt verification of the current password
+  if (!row || !auth.verifyPassword(current, row.password_hash)) {
+    return res.redirect("/settings?err=auth.currentPasswordWrong");
+  }
+  const newHash = auth.hashPassword(v.value);
+  db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(newHash, req.user.id);
+  // Invalidate every other session; keep the current one so the user stays signed in.
+  const token = req.cookies ? req.cookies[auth.SESSION_COOKIE] : null;
+  if (token) {
+    db.prepare("DELETE FROM sessions WHERE user_id = ? AND token != ?").run(req.user.id, token);
+  } else {
+    db.prepare("DELETE FROM sessions WHERE user_id = ?").run(req.user.id);
+  }
+  res.redirect("/settings?ok=auth.passwordChanged");
+});
+
 // --- Account deletion ------------------------------------------------------------
 router.post("/api/account/delete", requireAuth, (req, res) => {
   const db = dbOf(req);

@@ -5,6 +5,7 @@ const { esc, formatDateTime } = require("../../lib/format");
 const { locationDisplayName, locationHierarchy } = require("../../lib/locations");
 const { staleBanner, alertCard, currentCard, hourlyList, dailyList, overviewGrid } = require("../widgets");
 const { icon } = require("../icons");
+const { skyTheme, skyFx } = require("../sky");
 
 /**
  * data: {
@@ -61,11 +62,17 @@ function homePage(ctx, data) {
     ? currentCard(ctx, hier, data.current.data)
     : `<section class="card"><p class="error">${esc(t("common.error"))}</p></section>`;
 
+  // Weather-reactive page background: body class + animated sky layer.
+  if (data.current && data.current.data) {
+    ctx.bodyClass = `sky-${skyTheme(data.current.data.weatherCode, data.current.data.isDay)}`;
+  }
+
   const hourlyHtml = data.hourly && data.hourly.data ? hourlyList(ctx, data.hourly.data) : "";
   const dailyHtml = data.daily && data.daily.data ? dailyList(ctx, data.daily.data) : "";
   const overviewHtml = data.overview ? overviewGrid(ctx, data.overview) : "";
 
   return `
+    ${skyFx()}
     <div class="pagehead">
       <div>
         <h1>${esc(t("home.title"))}</h1>

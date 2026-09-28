@@ -41,6 +41,21 @@ function settingsPage(ctx) {
     <form class="inlineform" method="post" action="/api/account/delete" onsubmit="return confirm(${JSON.stringify(t("auth.deleteAccountConfirm"))})">
       <button class="btn btn-ghost danger" type="submit">${esc(t("auth.deleteAccount"))}</button>
     </form>
+  </section>
+  <section class="card">
+    <h2 class="cardtitle">${esc(t("auth.changePassword"))}</h2>
+    <form method="post" action="/api/account/password" class="formgrid" autocomplete="off">
+      <label>${esc(t("auth.currentPassword"))}
+        <input type="password" name="currentPassword" required autocomplete="current-password" minlength="8" maxlength="128">
+      </label>
+      <label>${esc(t("auth.newPassword"))} <span class="muted small">(${esc(t("auth.passwordHint"))})</span>
+        <input type="password" name="newPassword" required autocomplete="new-password" minlength="8" maxlength="128">
+      </label>
+      <label>${esc(t("auth.confirmPassword"))}
+        <input type="password" name="confirmPassword" required autocomplete="new-password" minlength="8" maxlength="128">
+      </label>
+      <div><button class="btn btn-primary" type="submit">${esc(t("auth.changePassword"))}</button></div>
+    </form>
   </section>` : ""}`;
 }
 
