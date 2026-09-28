@@ -3,8 +3,36 @@
 // enhances (search autocomplete, map, geolocation, recents).
 "use strict";
 
+const fs = require("fs");
+const path = require("path");
 const { esc } = require("../lib/format");
 const { dashRail } = require("./widgets");
+
+/**
+ * Cache-busting version for static assets. Browsers cache /css/style.css for
+ * 1h (express.static maxAge); without a version query every redesign deploy
+ * serves NEW html with a STALE cached css to returning visitors, which renders
+ * as a broken unstyled page. The mtime changes on every deploy, so the query
+ * changes and browsers fetch the fresh file exactly once per deploy.
+ */
+let ASSET_VER = "0";
+try {
+  ASSET_VER = String(
+    Math.floor(
+      fs.statSync(path.join(__dirname, "..", "..", "public", "css", "style.css")).mtimeMs
+    )
+  );
+} catch (e) {
+  ASSET_VER = String(Date.now());
+}
+
+/** Append ?v= to same-origin asset paths so deploys bust the 1h static cache. */
+function verAsset(url) {
+  if (typeof url === "string" && url.startsWith("/")) {
+    return url + (url.includes("?") ? "&" : "?") + "v=" + ASSET_VER;
+  }
+  return url;
+}
 
 /** Inline script: apply theme class before first paint (no FOUC). */
 function themeInitScript(prefs) {
@@ -57,7 +85,7 @@ function layout(ctx, bodyHtml) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} — ${esc(t("meta.appName"))}</title>
 <meta name="description" content="${esc(t("meta.tagline"))}">
-<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="${verAsset("/css/style.css")}">
 ${themeInitScript(prefs)}
 </head>
 <body${bodyClass}>
@@ -84,7 +112,7 @@ ${dashMode ? dashRail(ctx, ctx.alertCount || 0) : `<header class="siteheader">
     <p>${esc(t("footer.dataBy"))} <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a></p>
   </div>
 </footer>
-${scripts.map((s) => `<script src="${esc(s)}" defer></script>`).join("\n")}
+${scripts.map((s) => `<script src="${esc(verAsset(s))}" defer></script>`).join("\n")}
 </body>
 </html>`;
 }
