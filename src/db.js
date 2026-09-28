@@ -107,6 +107,34 @@ function migrate(db) {
       ok INTEGER NOT NULL,
       error TEXT
     );
+    -- AI analysis feature: per-user gateway credentials (encrypted), saved
+    -- reports, and a daily usage counter for rate limiting.
+    CREATE TABLE IF NOT EXISTS ai_configs (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      api_base TEXT NOT NULL DEFAULT '',
+      api_key_enc TEXT NOT NULL DEFAULT '',
+      key_last4 TEXT NOT NULL DEFAULT '',
+      default_model TEXT NOT NULL DEFAULT 'claude-sonnet-5',
+      updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS ai_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      location_name TEXT NOT NULL DEFAULT '',
+      lat REAL,
+      lon REAL,
+      model TEXT NOT NULL DEFAULT '',
+      markdown TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_ai_reports_user ON ai_reports(user_id, created_at DESC);
+    CREATE TABLE IF NOT EXISTS ai_usage (
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      day TEXT NOT NULL,
+      count INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (user_id, day)
+    );
   `);
 }
 

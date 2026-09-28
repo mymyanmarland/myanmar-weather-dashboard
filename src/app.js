@@ -48,6 +48,7 @@ function createApp(db) {
 
   app.use(require("./routes/auth"));
   app.use(require("./routes/api"));
+  app.use(require("./routes/ai"));
   app.use(require("./routes/pages"));
 
   // 404

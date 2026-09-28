@@ -30,6 +30,7 @@ function icon(name, cls) {
     cloudHail:
       '<g class="wx-drift"><path d="M7 14h10a4 4 0 0 0 .8-7.9A5.5 5.5 0 0 0 7 7.4 3.5 3.5 0 0 0 7 14z"/></g><g class="wx-flakes"><circle class="wx-f1" cx="9" cy="18.5" r="1.1"/><circle class="wx-f2" cx="13.5" cy="19.5" r="1.1"/><circle class="wx-f3" cx="17" cy="18" r="1.1"/></g>',
     pin: '<path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/>',
+    sparkles: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/>',
     home: '<path d="M4 11.2L12 4l8 7.2"/><path d="M6.2 9.8V20h11.6V9.8"/>',
     map: '<path d="M9 4L3.5 5.8v14L9 18l6 1.8 5.5-1.8v-14L15 5.8 9 4z"/><path d="M9 4v14M15 5.8v14"/>',
     bell: '<path d="M6.5 16v-5.2a5.5 5.5 0 0 1 11 0V16l1.4 2.6H5.1z"/><path d="M10.2 21a2 2 0 0 0 3.6 0"/>',

@@ -64,6 +64,7 @@ function dashRail(ctx, alertCount) {
     ["search", "/search", "search", null],
     ["map", "/map", "map", null],
     ["bell", "/alerts", "alerts", alertCount || 0],
+    ["sparkles", "/ai", "ai", null],
     ["heart", "/favorites", "favorites", null],
     ["gear", "/settings", "settings", null],
   ];

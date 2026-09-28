@@ -775,3 +775,35 @@ body[class*="-night"] .dhero-temp, .dark .dhero-temp {
 @media (prefers-reduced-motion: reduce) {
   .mmap-pin, .sunarc-sun { animation: none !important; }
 }
+
+/* --- AI analysis pages -------------------------------------------------- */
+.aitypes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin-bottom: 1rem; }
+.aitype { display: grid; gap: .3rem; padding: .9rem 1rem; border: 1px solid var(--card-border, rgba(255,255,255,.12)); border-radius: 14px; cursor: pointer; background: var(--glass, rgba(255,255,255,.04)); transition: border-color .15s, transform .15s; }
+.aitype input { position: absolute; opacity: 0; pointer-events: none; }
+.aitype.sel, .aitype:has(input:checked) { border-color: #4da3ff; box-shadow: 0 0 0 1px #4da3ff inset; }
+.aitype:hover { transform: translateY(-1px); }
+.aitype-title { font-weight: 700; }
+.aitype-desc { font-size: .82rem; color: var(--muted, #8b93a7); }
+.aiform { display: grid; gap: 1rem; }
+.formgrid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+.formgrid2 label, .aiform label { display: grid; gap: .3rem; font-size: .9rem; }
+.btnrow { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.keymasked { font-size: .9rem; margin-bottom: .3rem; }
+.keymasked code { padding: .15rem .5rem; border-radius: 6px; background: rgba(0,0,0,.25); }
+.bigicon .wicon.xl { width: 56px; height: 56px; }
+.reportlist { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.reportrow { display: flex; justify-content: space-between; align-items: center; gap: .8rem; padding: .6rem .8rem; border: 1px solid var(--card-border, rgba(255,255,255,.12)); border-radius: 10px; }
+.reportrow a { text-decoration: none; color: inherit; }
+.reportrow a:hover b { text-decoration: underline; }
+.reportmeta { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.reportbody { font-size: .95rem; }
+.reportbody h2, .reportbody h3, .reportbody h4 { margin: 1.1em 0 .4em; }
+.reportbody p { margin: .5em 0; }
+.reportbody ul, .reportbody ol { margin: .4em 0 .8em; padding-left: 1.4rem; }
+.reportbody li { margin: .25em 0; }
+.reportactions { margin-top: 1.2rem; }
+.flash.warn { background: rgba(255,170,0,.12); border: 1px solid rgba(255,170,0,.4); }
+@media (max-width: 720px) {
+  .aitypes { grid-template-columns: 1fr; }
+  .formgrid2 { grid-template-columns: 1fr; }
+}
