@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="Myanmar Weather Dashboard">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#081c36"/>
+      <stop offset="0.55" stop-color="#0e3a68"/>
+      <stop offset="1" stop-color="#1668a8"/>
+    </linearGradient>
+    <radialGradient id="sunG" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7d6"/>
+      <stop offset="0.55" stop-color="#ffd94d"/>
+      <stop offset="1" stop-color="#ff9d2e"/>
+    </radialGradient>
+    <radialGradient id="sunGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd94d" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd94d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cld" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#cfe6fb"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fef08a"/>
+      <stop offset="1" stop-color="#facc15"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .rays { transform-origin: 168px 118px; animation: spin 26s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .drift1 { animation: drift 46s linear infinite; }
+    .drift2 { animation: drift 68s linear infinite; animation-delay: -24s; }
+    .drift3 { animation: drift 58s linear infinite; animation-delay: -41s; }
+    @keyframes drift { from { transform: translateX(-320px); } to { transform: translateX(1420px); } }
+    .tw { animation: tw 3.2s ease-in-out infinite; }
+    .tw2 { animation: tw 4.1s ease-in-out infinite; animation-delay: -1.4s; }
+    .tw3 { animation: tw 2.6s ease-in-out infinite; animation-delay: -2.2s; }
+    @keyframes tw { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.95; } }
+    .drop { animation: rain 1.5s linear infinite; }
+    @keyframes rain { 0% { transform: translateY(0); opacity: 0; } 25% { opacity: 0.9; } 100% { transform: translateY(52px); opacity: 0; } }
+    .bolt { animation: flash 4.5s ease-in-out infinite; }
+    @keyframes flash { 0%, 100% { opacity: 0.12; } 6% { opacity: 1; } 12% { opacity: 0.25; } 18% { opacity: 1; } 30%, 100% { opacity: 0.12; } }
+    .floaty { animation: floaty 7s ease-in-out infinite; }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .shimmer { animation: shimmer 5s ease-in-out infinite; }
+    @keyframes shimmer { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+  </style>
+
+  <rect width="1280" height="420" fill="url(#sky)"/>
+
+  <!-- stars -->
+  <g fill="#ffffff">
+    <circle class="tw" cx="420" cy="52" r="2.4"/><circle class="tw2" cx="560" cy="88" r="1.8"/>
+    <circle class="tw3" cx="700" cy="44" r="2.2"/><circle class="tw" cx="830" cy="76" r="1.6"/>
+    <circle class="tw2" cx="950" cy="40" r="2.4"/><circle class="tw3" cx="330" cy="66" r="1.8"/>
+    <circle class="tw" cx="90" cy="240" r="1.8"/><circle class="tw2" cx="340" cy="120" r="1.6"/>
+    <circle class="tw3" cx="760" cy="120" r="1.5"/><circle class="tw" cx="500" cy="150" r="1.5"/>
+  </g>
+
+  <!-- sun -->
+  <circle cx="168" cy="118" r="110" fill="url(#sunGlow)"/>
+  <g class="rays" stroke="#ffd94d" stroke-width="7" stroke-linecap="round" opacity="0.9">
+    <line x1="168" y1="38" x2="168" y2="62"/><line x1="168" y1="174" x2="168" y2="198"/>
+    <line x1="88" y1="118" x2="112" y2="118"/><line x1="224" y1="118" x2="248" y2="118"/>
+    <line x1="111" y1="61" x2="128" y2="78"/><line x1="208" y1="158" x2="225" y2="175"/>
+    <line x1="225" y1="61" x2="208" y2="78"/><line x1="128" y1="158" x2="111" y2="175"/>
+  </g>
+  <circle cx="168" cy="118" r="52" fill="url(#sunG)"/>
+
+  <!-- cloud shape -->
+  <g id="cldShape" fill="url(#cld)">
+    <ellipse cx="0" cy="0" rx="72" ry="36"/>
+    <ellipse cx="46" cy="-20" rx="50" ry="32"/>
+    <ellipse cx="-50" cy="-14" rx="44" ry="28"/>
+    <ellipse cx="8" cy="-32" rx="36" ry="24"/>
+  </g>
+
+  <!-- drifting clouds (behind title) -->
+  <g transform="translate(0,84)"><g class="drift1"><use href="#cldShape" opacity="0.9"/></g></g>
+  <g transform="translate(0,320) scale(0.66)"><g class="drift2"><use href="#cldShape" opacity="0.7"/></g></g>
+  <g transform="translate(0,210) scale(1.15)"><g class="drift3"><use href="#cldShape" opacity="0.45"/></g></g>
+
+  <!-- storm cluster, right side (fixed, clear of title) -->
+  <g transform="translate(1120,108) scale(0.82)">
+    <use href="#cldShape"/>
+    <g stroke="#7dd3fc" stroke-width="6" stroke-linecap="round" transform="translate(0,44)">
+      <line class="drop" x1="-30" y1="0" x2="-40" y2="26"/>
+      <line class="drop" x1="6" y1="0" x2="-4" y2="26" style="animation-delay:-0.5s"/>
+      <line class="drop" x1="42" y1="0" x2="32" y2="26" style="animation-delay:-1s"/>
+    </g>
+    <polygon class="bolt" points="52,-6 24,58 46,58 32,118 74,44 50,44 66,-6" fill="url(#bolt)"/>
+  </g>
+
+  <!-- floating drops -->
+  <g class="floaty" fill="#bae6fd" opacity="0.8">
+    <circle cx="60" cy="330" r="5"/><circle cx="92" cy="360" r="3.4"/><circle cx="30" cy="368" r="4"/>
+  </g>
+
+  <!-- title -->
+  <g class="shimmer" text-anchor="middle">
+    <text x="600" y="172" font-family="Verdana, 'Segoe UI', system-ui, sans-serif" font-size="66" font-weight="bold" fill="#ffffff" letter-spacing="6">MYANMAR WEATHER</text>
+    <text x="600" y="246" font-family="Verdana, 'Segoe UI', system-ui, sans-serif" font-size="66" font-weight="bold" fill="#7dd3fc" letter-spacing="10">DASHBOARD</text>
+    <text x="600" y="308" font-family="'Noto Sans Myanmar','Myanmar Text','Myanmar Sangam MN','Padauk',sans-serif" font-size="36" fill="#dbeafe" letter-spacing="2">မြန်မာ့မိုးလေဝသစနစ်</text>
+    <text x="600" y="350" font-family="Verdana, 'Segoe UI', system-ui, sans-serif" font-size="20" fill="#93c5fd" letter-spacing="3">BILINGUAL · AI-POWERED · REAL-TIME</text>
+  </g>
+
+  <!-- bottom wave -->
+  <path d="M0,392 C240,372 420,410 660,394 C900,378 1080,408 1280,390 L1280,420 L0,420 Z" fill="#ffffff" opacity="0.07"/>
+</svg>
