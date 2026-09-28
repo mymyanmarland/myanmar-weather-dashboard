@@ -87,6 +87,11 @@ const en = {
     cities: "Major cities",
     saveFavorite: "Save as favorite",
     savedFavorite: "Saved ✓",
+    searchPlaceholder: "Search locations…",
+    miniMapTitle: "Weather map",
+    openFullMap: "Open full map",
+    sunWidgetTitle: "Sunrise & sunset",
+    railMenu: "Navigation",
   },
   search: {
     title: "Search locations",
@@ -339,6 +344,11 @@ const my = {
     cities: "အဓိကမြို့ကြီးများ",
     saveFavorite: "အကြိုက်ဆုံးအဖြစ် သိမ်းရန်",
     savedFavorite: "သိမ်းပြီးပါပြီ ✓",
+    searchPlaceholder: "တည်နေရာရှာဖွေရန်…",
+    miniMapTitle: "မိုးလေဝသမြေပုံ",
+    openFullMap: "မြေပုံအပြည့်ဖွင့်ရန်",
+    sunWidgetTitle: "နေထွက်ချိန် နှင့် နေဝင်ချိန်",
+    railMenu: "လမ်းညွှန်မီနူး",
   },
   search: {
     title: "နေရာရှာဖွေရန်",

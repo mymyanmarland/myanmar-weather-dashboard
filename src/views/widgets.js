@@ -1,4 +1,6 @@
 // Reusable HTML fragments for weather display.
+// Dashboard widgets: hero, hourly strip, 10-day-style rows, UV gauge,
+// sunrise/sunset arc, mini map preview, sidebar rail.
 "use strict";
 
 const { esc, formatTemp, formatWind, formatTime, formatHourLabel, formatDate, formatWeekday, formatDateTime, formatVisibility, compassKey, uvBand, codeInfo } = (() => {
@@ -52,173 +54,234 @@ function alertCard(ctx, alert) {
 }
 
 /**
- * Hero current-weather section: full-width, sky-reactive panel with a huge
- * temperature readout, animated condition icon, feels-like/high/low strip
- * and a grid of stat tiles. Replaces the old plain current-weather card.
+ * Sidebar rail navigation (dashboard shell). Icon-only; labels via
+ * title/aria-label. Bell carries the active-alert count badge.
  */
-function currentCard(ctx, locName, current) {
+function dashRail(ctx, alertCount) {
+  const { t, active, user } = ctx;
+  const items = [
+    ["home", "/", "home", null],
+    ["search", "/search", "search", null],
+    ["map", "/map", "map", null],
+    ["bell", "/alerts", "alerts", alertCount || 0],
+    ["heart", "/favorites", "favorites", null],
+    ["gear", "/settings", "settings", null],
+  ];
+  if (user && user.role === "admin") items.push(["gauge", "/admin", "admin", null]);
+  const links = items.map(([ic, href, key, badge]) => {
+    const isActive = active === key;
+    const label = t(`nav.${key}`);
+    const badgeHtml = badge > 0 ? `<span class="rail-badge" aria-hidden="true">${badge > 9 ? "9+" : badge}</span>` : "";
+    const aria = badge > 0 ? `${label} (${badge})` : label;
+    return `<a class="rail-link${isActive ? " active" : ""}" href="${esc(href)}"${isActive ? ' aria-current="page"' : ""} title="${esc(label)}" aria-label="${esc(aria)}">${icon(ic, "wicon md")}${badgeHtml}</a>`;
+  }).join("");
+  return `<nav class="rail" aria-label="${esc(t("home.railMenu"))}">
+    <a class="rail-brand" href="/" aria-label="${esc(t("meta.appName"))}" title="${esc(t("meta.appName"))}"><span aria-hidden="true">☀</span></a>
+    ${links}
+  </nav>`;
+}
+
+/**
+ * Hero current-weather panel: huge temperature, condition label, big
+ * animated illustration, feels-like / humidity / wind row.
+ */
+function dashHero(ctx, locName, current, actionsHtml) {
   const { t, lang, prefs } = ctx;
   const info = codeInfo(current.weatherCode);
-  const iconName = (current.isDay ? info.iconDay : info.iconNight);
-  const theme = skyTheme(current.weatherCode, current.isDay);
-  const windUnit = prefs.windUnit;
-  const windVal = formatWind(current.windKmh, windUnit);
-  const windUnitLabel = t(`common.${windUnit}`);
+  const iconName = current.isDay ? info.iconDay : info.iconNight;
+  const windVal = formatWind(current.windKmh, prefs.windUnit);
+  const windUnitLabel = t(`common.${prefs.windUnit}`);
   const compass = t(`compass.${compassKey(current.windDirectionDeg || 0)}`);
-  const uv = uvBand(current.uvIndex);
-  const uvLabel = uv ? t(`uv.${uv}`) : "—";
-  const prob = current.precipitationProb != null ? `${Math.round(current.precipitationProb)}${t("common.percent")}` : "—";
-  const tiles = [
-    ["thermo", t("home.feelsLike"), formatTemp(current.feelsLikeC, prefs.tempUnit)],
-    ["drop", t("home.humidity"), `${Math.round(current.humidity)}${t("common.percent")}`],
-    ["wind", t("home.wind"), `${windVal} ${esc(windUnitLabel)} ${esc(compass)}`],
-    ["drop", t("home.rainProb"), prob],
-    ["cloudRain", t("home.rainfall"), `${current.precipitationMm} ${t("common.mm")}`],
-    ["gauge", t("home.pressure"), `${Math.round(current.pressureHpa)} ${t("common.hpa")}`],
-    ["eye", t("home.visibility"), formatVisibility(current.visibilityM, t)],
-    ["sun", t("home.uvIndex"), uvLabel],
-    ["sunrise", t("home.sunrise"), formatTime(current.sunrise, lang, prefs.timeFormat)],
-    ["sunset", t("home.sunset"), formatTime(current.sunset, lang, prefs.timeFormat)],
-  ];
-  return `<section class="hero hero-${esc(theme)}" aria-label="${esc(t("home.currentWeather"))}">
-    <div class="hero-inner">
-      <div class="hero-loc">
-        ${icon("pin", "wicon sm hero-pin")}
-        <div><h2>${esc(locName)}</h2></div>
-      </div>
-      <div class="hero-main">
-        <div class="hero-icon">${icon(iconName, "wicon hero-wicon")}</div>
-        <div class="hero-readout">
-          <div class="hero-temp">${esc(formatTemp(current.temperatureC, prefs.tempUnit))}</div>
-          <div class="hero-cond">${esc(weatherLabel(t, lang, current.weatherCode))}</div>
-        </div>
-      </div>
-      <div class="hero-strip" role="list">
+  return `<section class="dhero" aria-label="${esc(t("home.currentWeather"))}">
+    <div class="dhero-info">
+      <p class="dhero-loc">${icon("pin", "wicon sm")}<span>${esc(locName)}</span>${actionsHtml || ""}</p>
+      <div class="dhero-temp">${esc(formatTemp(current.temperatureC, prefs.tempUnit))}</div>
+      <div class="dhero-cond">${esc(weatherLabel(t, lang, current.weatherCode))}</div>
+      <div class="dhero-meta" role="list">
         <div role="listitem"><span>${esc(t("home.feelsLike"))}</span><b>${esc(formatTemp(current.feelsLikeC, prefs.tempUnit))}</b></div>
-        <div role="listitem"><span>${esc(t("home.high"))}</span><b>${esc(formatTemp(current.highC, prefs.tempUnit))}</b></div>
-        <div role="listitem"><span>${esc(t("home.low"))}</span><b>${esc(formatTemp(current.lowC, prefs.tempUnit))}</b></div>
+        <div role="listitem"><span>${esc(t("home.humidity"))}</span><b>${Math.round(current.humidity)}${esc(t("common.percent"))}</b></div>
+        <div role="listitem"><span>${esc(t("home.wind"))}</span><b>${esc(windVal)} ${esc(windUnitLabel)} ${esc(compass)}</b></div>
       </div>
-      <dl class="hero-stats">${tiles.map(([ic, k, v]) => `
-        <div class="hstat"><dt>${icon(ic, "wicon sm")}<span>${esc(k)}</span></dt><dd>${esc(v)}</dd></div>`).join("")}
-      </dl>
-      <p class="updated hero-updated">${esc(t("common.lastUpdated"))}: ${esc(formatDateTime(current.observedAt, lang, prefs.timeFormat))}</p>
     </div>
+    <div class="dhero-art" aria-hidden="true">${icon(iconName, "wicon dhero-wicon")}</div>
   </section>`;
 }
 
 /**
- * 24-hour forecast as an SVG temperature curve: smooth line, gradient fill,
- * precipitation-probability dots, time labels. Server-rendered (no JS needed).
+ * Hourly forecast as a horizontal scrollable strip of hour cards:
+ * time, animated icon, temperature, rain chance. Server-rendered.
  */
-function smoothPath(pts) {
-  if (pts.length < 2) return "";
-  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[Math.max(0, i - 1)];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[Math.min(pts.length - 1, i + 2)];
-    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
-    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
-    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
-    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
-    d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
-  }
-  return d;
-}
-
-function hourlyList(ctx, hourly) {
+function hourlyStrip(ctx, hourly) {
   const { t, lang, prefs } = ctx;
   const items = hourly.slice(0, 24);
   if (!items.length) return "";
-  const disp = (c) => (prefs.tempUnit === "f" ? c * 9 / 5 + 32 : c);
-  const temps = items.map((h) => disp(h.temperatureC));
-  const min = Math.min(...temps);
-  const max = Math.max(...temps);
-  const W = 760, H = 216, PT = 34, PB = 40, PL = 14, PR = 14;
-  const span = max - min || 1;
-  const x = (i) => PL + (i * (W - PL - PR)) / (items.length - 1);
-  const y = (tv) => PT + (1 - (tv - min) / span) * (H - PT - PB);
-  const pts = temps.map((tv, i) => [x(i), y(tv)]);
-  const line = smoothPath(pts);
-  const base = H - PB + 14;
-  const area = `${line}L${x(items.length - 1).toFixed(1)},${base}L${x(0).toFixed(1)},${base}Z`;
-
-  const dots = items.map((h, i) => {
-    const p = h.precipitationProb;
-    if (p == null || p < 20) return "";
-    const r = (2 + p / 22).toFixed(1);
-    return `<circle class="tcdot" cx="${x(i).toFixed(1)}" cy="${(y(temps[i]) - 12).toFixed(1)}" r="${r}"><title>${Math.round(p)}%</title></circle>`;
+  const cells = items.map((h, i) => {
+    const info = codeInfo(h.weatherCode);
+    const label = i === 0 ? t("common.now") : formatHourLabel(h.time, lang, prefs.timeFormat);
+    const prob = h.precipitationProb != null && h.precipitationProb >= 20
+      ? `<span class="hprob">${icon("drop", "wicon xs")}${Math.round(h.precipitationProb)}${esc(t("common.percent"))}</span>`
+      : `<span class="hprob hprob-none" aria-hidden="true">&nbsp;</span>`;
+    return `<div class="hcell" role="listitem">
+      <span class="hh">${esc(label)}</span>
+      ${icon(h.isDay ? info.iconDay : info.iconNight, "wicon md")}
+      <b class="ht">${esc(formatTemp(h.temperatureC, prefs.tempUnit))}</b>
+      ${prob}
+    </div>`;
   }).join("");
-
-  const labels = items.map((h, i) => {
-    if (i % 3 !== 0) return "";
-    return `<text class="tclabel" x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${esc(formatHourLabel(h.time, lang, prefs.timeFormat))}</text>`;
-  }).join("");
-
-  const minMax = temps.map((tv, i) => {
-    if (tv !== min && tv !== max) return "";
-    const above = tv === max;
-    return `<text class="tctemp${above ? " hot" : " cold"}" x="${x(i).toFixed(1)}" y="${(y(tv) + (above ? -10 : 20)).toFixed(1)}" text-anchor="middle">${Math.round(tv)}°</text>
-      <circle class="tcdot extreme" cx="${x(i).toFixed(1)}" cy="${y(tv).toFixed(1)}" r="4.5"/>`;
-  }).join("");
-
-  const unitLabel = prefs.tempUnit === "f" ? "°F" : "°C";
-  return `<section class="card" aria-label="${esc(t("home.hourlyTitle"))}">
-    <h2 class="cardtitle">${esc(t("home.hourlyTitle"))}</h2>
-    <div class="tcurve-wrap">
-      <svg class="tcurve" viewBox="0 0 ${W} ${H}" role="img"
-        aria-label="${esc(t("home.hourlyTitle"))} — ${Math.round(min)}${unitLabel} … ${Math.round(max)}${unitLabel}">
-        <defs>
-          <linearGradient id="tc-line" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
-            <stop offset="0" stop-color="#38bdf8"/><stop offset=".5" stop-color="#fbbf24"/><stop offset="1" stop-color="#fb7185"/>
-          </linearGradient>
-          <linearGradient id="tc-fill" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
-            <stop offset="0" stop-color="#38bdf8" stop-opacity=".38"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <path class="tcfill" d="${area}" fill="url(#tc-fill)"/>
-        ${[0.25, 0.5, 0.75].map((f) => `<line class="tcgrid" x1="${PL}" x2="${W - PR}" y1="${(PT + f * (H - PT - PB)).toFixed(1)}" y2="${(PT + f * (H - PT - PB)).toFixed(1)}"/>`).join("")}
-        <path class="tcline" d="${line}" fill="none" stroke="url(#tc-line)" stroke-width="3.5" stroke-linecap="round"/>
-        ${dots}${minMax}${labels}
-      </svg>
-    </div>
-    <p class="muted small tcurve-legend">${icon("drop", "wicon xs")} ${esc(t("home.rainProb"))}</p>
+  return `<section class="dcard" aria-label="${esc(t("home.hourlyTitle"))}">
+    <h2 class="dcard-title">${esc(t("home.hourlyTitle"))}</h2>
+    <div class="hstrip" role="list" tabindex="0">${cells}</div>
   </section>`;
 }
 
-function dailyList(ctx, daily) {
+/**
+ * Daily forecast rows: day, icon, rain chance, low … range bar … high.
+ * Server-rendered; the range bar is positioned against the week's span.
+ */
+function dailyRows(ctx, daily) {
   const { t, lang, prefs } = ctx;
-  const windUnitLabel = t(`common.${prefs.windUnit}`);
-  const items = daily.map((d, i) => {
+  if (!daily || !daily.length) return "";
+  const disp = (c) => (prefs.tempUnit === "f" ? c * 9 / 5 + 32 : c);
+  const lows = daily.map((d) => disp(d.lowC));
+  const highs = daily.map((d) => disp(d.highC));
+  const wMin = Math.min(...lows);
+  const wMax = Math.max(...highs);
+  const span = wMax - wMin || 1;
+  const rows = daily.map((d, i) => {
     const info = codeInfo(d.weatherCode);
     const dayName = i === 0 ? t("common.today") : formatWeekday(`${d.date}T12:00:00`, lang);
-    const prob = d.precipitationProb != null ? `${Math.round(d.precipitationProb)}${t("common.percent")}` : "—";
-    return `<details class="dayitem"${i === 0 ? " open" : ""}>
-      <summary>
-        <span class="dname">${esc(dayName)} <span class="ddate">${esc(formatDate(`${d.date}T12:00:00`, lang))}</span></span>
-        ${icon(info.iconDay, "wicon md")}
-        <span class="dtemps"><b>${esc(formatTemp(d.highC, prefs.tempUnit))}</b> ${esc(formatTemp(d.lowC, prefs.tempUnit))}</span>
-        <span class="dprob">${icon("drop", "wicon xs")}${esc(prob)}</span>
-      </summary>
-      <div class="daydetail">
-        <div class="kv"><span>${esc(t("home.rainfall"))}</span><b>${esc(d.precipitationMm)} ${esc(t("common.mm"))}</b></div>
-        <div class="kv"><span>${esc(t("home.wind"))}</span><b>${esc(formatWind(d.windKmh, prefs.windUnit))} ${esc(windUnitLabel)}</b></div>
-        <div class="kv"><span>${esc(t("home.sunrise"))}</span><b>${esc(formatTime(d.sunrise, lang, prefs.timeFormat))}</b></div>
-        <div class="kv"><span>${esc(t("home.sunset"))}</span><b>${esc(formatTime(d.sunset, lang, prefs.timeFormat))}</b></div>
-      </div>
-    </details>`;
+    const prob = d.precipitationProb != null && d.precipitationProb >= 20
+      ? `<span class="dr-prob">${icon("drop", "wicon xs")}${Math.round(d.precipitationProb)}${esc(t("common.percent"))}</span>`
+      : `<span class="dr-prob dr-prob-none" aria-hidden="true">—</span>`;
+    const left = (((disp(d.lowC) - wMin) / span) * 100).toFixed(1);
+    const width = ((Math.max(disp(d.highC) - disp(d.lowC), span * 0.05) / span) * 100).toFixed(1);
+    return `<div class="drow">
+      <span class="dr-day">${esc(dayName)}</span>
+      ${icon(info.iconDay, "wicon md")}
+      ${prob}
+      <span class="dr-low">${esc(formatTemp(d.lowC, prefs.tempUnit))}</span>
+      <span class="dr-bar" aria-hidden="true"><span class="dr-fill" style="left:${left}%;width:${width}%"></span></span>
+      <b class="dr-high">${esc(formatTemp(d.highC, prefs.tempUnit))}</b>
+    </div>`;
   }).join("");
-  return `<section class="card" aria-label="${esc(t("home.dailyTitle"))}">
-    <h2 class="cardtitle">${esc(t("home.dailyTitle"))}</h2>
-    <div class="daylist">${items}</div>
+  return `<section class="dcard" aria-label="${esc(t("home.dailyTitle"))}">
+    <h2 class="dcard-title">${esc(t("home.dailyTitle"))}</h2>
+    <div class="drows" role="list">${rows}</div>
   </section>`;
 }
 
+const UV_COLORS = { low: "#4ade80", moderate: "#facc15", high: "#fb923c", veryHigh: "#f87171", extreme: "#c084fc" };
+
+/**
+ * UV index semicircle gauge, server-rendered SVG.
+ * uvIndex may be null (fallback provider) → shows "—" gracefully.
+ */
+function uvGauge(ctx, current) {
+  const { t } = ctx;
+  const uv = current.uvIndex;
+  const band = uvBand(uv);
+  const label = band ? t(`uv.${band}`) : "—";
+  const frac = uv == null ? 0 : Math.min(Math.max(uv, 0), 11) / 11;
+  const R = 50;
+  const LEN = (Math.PI * R).toFixed(1);
+  const filled = (frac * Math.PI * R).toFixed(1);
+  const color = UV_COLORS[band] || "var(--border)";
+  const dot = uv == null ? "" : (() => {
+    const x = (60 - R * Math.cos(Math.PI * frac)).toFixed(1);
+    const y = (62 - R * Math.sin(Math.PI * frac)).toFixed(1);
+    return `<circle cx="${x}" cy="${y}" r="5" class="gauge-dot" style="fill:${color}"/>`;
+  })();
+  return `<section class="dcard gauge-wrap" aria-label="${esc(t("home.uvIndex"))}">
+    <h2 class="dcard-title">${esc(t("home.uvIndex"))}</h2>
+    <svg class="gauge" viewBox="0 0 120 70" role="img" aria-label="${esc(t("home.uvIndex"))}: ${uv == null ? "—" : Math.round(uv)} — ${esc(label)}">
+      <path d="M10,62 A50,50 0 0 1 110,62" class="gauge-track"/>
+      <path d="M10,62 A50,50 0 0 1 110,62" class="gauge-fill" style="stroke:${color};stroke-dasharray:${filled} ${LEN}"/>
+      ${dot}
+    </svg>
+    <div class="gauge-num">${uv == null ? "—" : Math.round(uv)}</div>
+    <div class="gauge-label">${esc(label)}</div>
+  </section>`;
+}
+
+/**
+ * Sunrise/sunset arc widget: sun dot positioned along the arc by the
+ * current time between sunrise and sunset. Server-rendered SVG.
+ */
+function sunArc(ctx, current) {
+  const { t, lang, prefs } = ctx;
+  const sr = new Date(current.sunrise).getTime();
+  const ss = new Date(current.sunset).getTime();
+  let frac = 0.5;
+  if (Number.isFinite(sr) && Number.isFinite(ss) && ss > sr) {
+    frac = (Date.now() - sr) / (ss - sr);
+    frac = Math.min(Math.max(frac, 0), 1);
+  }
+  const cx = 100, cy = 92, R = 78;
+  const x = (cx - R * Math.cos(Math.PI * frac)).toFixed(1);
+  const y = (cy - R * Math.sin(Math.PI * frac)).toFixed(1);
+  const srT = formatTime(current.sunrise, lang, prefs.timeFormat);
+  const ssT = formatTime(current.sunset, lang, prefs.timeFormat);
+  return `<section class="dcard sunarc-wrap" aria-label="${esc(t("home.sunWidgetTitle"))}">
+    <h2 class="dcard-title">${esc(t("home.sunWidgetTitle"))}</h2>
+    <svg class="sunarc" viewBox="0 0 200 104" role="img" aria-label="${esc(t("home.sunrise"))} ${esc(srT)}, ${esc(t("home.sunset"))} ${esc(ssT)}">
+      <line x1="8" y1="92" x2="192" y2="92" class="sunarc-horizon"/>
+      <path d="M22,92 A78,78 0 0 1 178,92" class="sunarc-track"/>
+      <circle cx="${x}" cy="${y}" r="13" class="sunarc-glow"/>
+      <circle cx="${x}" cy="${y}" r="8" class="sunarc-sun"/>
+    </svg>
+    <div class="sunarc-labels">
+      <span>${icon("sunrise", "wicon xs")} ${esc(srT)}</span>
+      <span>${esc(ssT)} ${icon("sunset", "wicon xs")}</span>
+    </div>
+  </section>`;
+}
+
+// --- Mini map (static OSM tile mosaic, zero JS) ---------------------------
+function lonToTileX(lon, z) {
+  return ((lon + 180) / 360) * Math.pow(2, z);
+}
+function latToTileY(lat, z) {
+  const r = (lat * Math.PI) / 180;
+  return (((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * Math.pow(2, z));
+}
+
+/**
+ * Lightweight map preview: a 2x2 OpenStreetMap tile mosaic framed on
+ * Myanmar with a pin at the current location, linking to the full /map
+ * page. No JavaScript; images are lazy-loaded.
+ */
+function miniMap(ctx, loc) {
+  const { t, lang } = ctx;
+  const z = 5;
+  const x0 = 23, y0 = 13; // fixed Myanmar framing
+  const tiles = [];
+  for (let dy = 0; dy < 2; dy++) {
+    for (let dx = 0; dx < 2; dx++) {
+      const x = x0 + dx, y = y0 + dy;
+      tiles.push(`<img src="https://tile.openstreetmap.org/${z}/${x}/${y}.png" alt="" loading="lazy" draggable="false">`);
+    }
+  }
+  const px = Math.min(Math.max((lonToTileX(loc.lon, z) - x0) * 256, 10), 502);
+  const py = Math.min(Math.max((latToTileY(loc.lat, z) - y0) * 256, 10), 502);
+  const label = locationDisplayName(loc, lang);
+  return `<section class="dcard dmap-card" aria-label="${esc(t("home.miniMapTitle"))}">
+    <h2 class="dcard-title">${esc(t("home.miniMapTitle"))}</h2>
+    <a class="minimap" href="/map" aria-label="${esc(t("home.openFullMap"))} — ${esc(label)}">
+      <span class="minimap-tiles" aria-hidden="true">${tiles.join("")}</span>
+      <span class="mmap-pin" aria-hidden="true" style="left:${(px / 512 * 100).toFixed(2)}%;top:${(py / 512 * 100).toFixed(2)}%"></span>
+      <span class="mmap-chip">${icon("map", "wicon xs")} ${esc(t("home.openFullMap"))}</span>
+    </a>
+  </section>`;
+}
+
+/**
+ * 12-city Myanmar overview, restyled as a compact dashboard grid with
+ * hottest/coolest highlight chips.
+ */
 function overviewGrid(ctx, overview) {
   const { t, lang, prefs } = ctx;
   const ok = overview.filter((o) => o.current);
-  let hottest = null, coolest = null, rainiest = null;
+  let hottest = null, coolest = null;
   for (const o of ok) {
     if (!hottest || o.current.temperatureC > hottest.current.temperatureC) hottest = o;
     if (!coolest || o.current.temperatureC < coolest.current.temperatureC) coolest = o;
@@ -226,24 +289,24 @@ function overviewGrid(ctx, overview) {
   const cells = ok.map((o) => {
     const info = codeInfo(o.current.weatherCode);
     const name = locationDisplayName(o.city, lang);
-    return `<a class="citycell" href="/?id=${esc(o.city.id)}">
+    return `<a class="dcity" href="/?id=${esc(o.city.id)}">
       ${icon(o.current.isDay ? info.iconDay : info.iconNight, "wicon md")}
-      <span class="cityname">${esc(name)}</span>
-      <span class="citytemp">${esc(formatTemp(o.current.temperatureC, prefs.tempUnit))}</span>
+      <span class="dcity-name">${esc(name)}</span>
+      <b class="dcity-temp">${esc(formatTemp(o.current.temperatureC, prefs.tempUnit))}</b>
     </a>`;
   }).join("");
-  const stat = (label, o) => o
-    ? `<div class="stat"><dt>${esc(label)}</dt><dd>${esc(locationDisplayName(o.city, lang))} · ${esc(formatTemp(o.current.temperatureC, prefs.tempUnit))}</dd></div>`
+  const chip = (label, o) => o
+    ? `<span class="dchip">${esc(label)}: <b>${esc(locationDisplayName(o.city, lang))} ${esc(formatTemp(o.current.temperatureC, prefs.tempUnit))}</b></span>`
     : "";
-  return `<section class="card" aria-label="${esc(t("home.overviewTitle"))}">
-    <h2 class="cardtitle">${esc(t("home.overviewTitle"))}</h2>
-    <dl class="stats stats-3">
-      ${stat(t("home.hottest"), hottest)}
-      ${stat(t("home.coolest"), coolest)}
-    </dl>
-    <h3 class="subtitle">${esc(t("home.cities"))}</h3>
-    <div class="citygrid">${cells}</div>
+  return `<section class="dcard" aria-label="${esc(t("home.overviewTitle"))}">
+    <h2 class="dcard-title">${esc(t("home.overviewTitle"))}</h2>
+    <div class="dchips">${chip(t("home.hottest"), hottest)}${chip(t("home.coolest"), coolest)}</div>
+    <div class="dcitygrid">${cells}</div>
   </section>`;
 }
 
-module.exports = { staleBanner, severityBadge, alertCard, currentCard, hourlyList, dailyList, overviewGrid, weatherLabel };
+module.exports = {
+  staleBanner, severityBadge, alertCard, weatherLabel,
+  dashRail, dashHero, hourlyStrip, dailyRows, uvGauge, sunArc, miniMap,
+  overviewGrid,
+};

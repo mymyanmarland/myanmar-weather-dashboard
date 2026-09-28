@@ -99,6 +99,7 @@ function esc(v) {
 
 module.exports = {
   YANGON_TZ,
+  localeFor,
   toTemp,
   formatTemp,
   formatWind,

@@ -4,6 +4,7 @@
 "use strict";
 
 const { esc } = require("../lib/format");
+const { dashRail } = require("./widgets");
 
 /** Inline script: apply theme class before first paint (no FOUC). */
 function themeInitScript(prefs) {
@@ -23,7 +24,10 @@ function layout(ctx, bodyHtml) {
   const { lang, t, user, prefs, title, active } = ctx;
   const scripts = ctx.scripts || [];
   const flash = ctx.flash || null;
-  const bodyClass = ctx.bodyClass ? ` class="${esc(ctx.bodyClass)}"` : "";
+  // Dashboard shell mode (home page): icon rail instead of the top header.
+  const dashMode = !!ctx.dash;
+  const bodyCls = [ctx.bodyClass, dashMode ? "dashmode" : ""].filter(Boolean).join(" ");
+  const bodyClass = bodyCls ? ` class="${esc(bodyCls)}"` : "";
 
   const langSwitch = `
     <form class="langswitch" method="post" action="/api/prefs" aria-label="${esc(t("settings.language"))}">
@@ -58,7 +62,7 @@ ${themeInitScript(prefs)}
 </head>
 <body${bodyClass}>
 <a class="skip" href="#main">${esc(t("common.viewAll")) === "View all" ? "Skip to content" : "အဓိကအကြောင်းအရာသို့ ကျော်ရန်"}</a>
-<header class="siteheader">
+${dashMode ? dashRail(ctx, ctx.alertCount || 0) : `<header class="siteheader">
   <div class="wrap headerrow">
     <a class="brand" href="/"><span class="brandmark">☀</span><span class="brandname">${esc(t("meta.appName"))}</span></a>
     <nav class="mainnav" aria-label="${esc(t("nav.menu"))}">
@@ -72,8 +76,8 @@ ${themeInitScript(prefs)}
     </nav>
     <div class="headeractions">${langSwitch}${authArea}</div>
   </div>
-</header>
-<main id="main" class="wrap">${flashHtml}${bodyHtml}</main>
+</header>`}
+<main id="main" class="${dashMode ? "dashmain" : "wrap"}">${flashHtml}${bodyHtml}</main>
 <footer class="sitefooter">
   <div class="wrap footerinner">
     <p>${esc(t("footer.tagline"))}</p>

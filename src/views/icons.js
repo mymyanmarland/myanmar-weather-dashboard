@@ -30,6 +30,11 @@ function icon(name, cls) {
     cloudHail:
       '<g class="wx-drift"><path d="M7 14h10a4 4 0 0 0 .8-7.9A5.5 5.5 0 0 0 7 7.4 3.5 3.5 0 0 0 7 14z"/></g><g class="wx-flakes"><circle class="wx-f1" cx="9" cy="18.5" r="1.1"/><circle class="wx-f2" cx="13.5" cy="19.5" r="1.1"/><circle class="wx-f3" cx="17" cy="18" r="1.1"/></g>',
     pin: '<path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/>',
+    home: '<path d="M4 11.2L12 4l8 7.2"/><path d="M6.2 9.8V20h11.6V9.8"/>',
+    map: '<path d="M9 4L3.5 5.8v14L9 18l6 1.8 5.5-1.8v-14L15 5.8 9 4z"/><path d="M9 4v14M15 5.8v14"/>',
+    bell: '<path d="M6.5 16v-5.2a5.5 5.5 0 0 1 11 0V16l1.4 2.6H5.1z"/><path d="M10.2 21a2 2 0 0 0 3.6 0"/>',
+    gear: '<circle cx="12" cy="12" r="3.1"/><path d="M12 2.6v2.8M12 18.6v2.8M2.6 12h2.8M18.6 12h2.8M5.2 5.2l2 2M16.8 16.8l2 2M18.8 5.2l-2 2M7.2 16.8l-2 2"/>',
+    user: '<circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20a7.4 7.4 0 0 1 14.4 0"/>',
     heart: '<path d="M12 20.5S3.5 15 3.5 9.3A4.6 4.6 0 0 1 8.2 4.7c1.7 0 3 .9 3.8 2.2a4.9 4.9 0 0 1 3.8-2.2 4.6 4.6 0 0 1 4.7 4.6c0 5.7-8.5 11.2-8.5 11.2z"/>',
     search: '<circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8L21 21"/>',
     alert: '<path d="M12 3l10 17H2z"/><path d="M12 10v4M12 17.5v.01"/>',
