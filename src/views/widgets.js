@@ -59,26 +59,29 @@ function alertCard(ctx, alert) {
  */
 function dashRail(ctx, alertCount) {
   const { t, active, user } = ctx;
-  const items = [
+  const main = [
     ["home", "/", "home", null],
     ["search", "/search", "search", null],
     ["map", "/map", "map", null],
     ["bell", "/alerts", "alerts", alertCount || 0],
     ["sparkles", "/ai", "ai", null],
     ["heart", "/favorites", "favorites", null],
-    ["gear", "/settings", "settings", null],
   ];
-  if (user && user.role === "admin") items.push(["gauge", "/admin", "admin", null]);
-  const links = items.map(([ic, href, key, badge]) => {
+  const bottom = [["gear", "/settings", "settings", null]];
+  if (user && user.role === "admin") bottom.push(["gauge", "/admin", "admin", null]);
+  const link = ([ic, href, key, badge]) => {
     const isActive = active === key;
     const label = t(`nav.${key}`);
     const badgeHtml = badge > 0 ? `<span class="rail-badge" aria-hidden="true">${badge > 9 ? "9+" : badge}</span>` : "";
     const aria = badge > 0 ? `${label} (${badge})` : label;
-    return `<a class="rail-link${isActive ? " active" : ""}" href="${esc(href)}"${isActive ? ' aria-current="page"' : ""} title="${esc(label)}" aria-label="${esc(aria)}">${icon(ic, "wicon md")}${badgeHtml}</a>`;
-  }).join("");
+    return `<a class="rail-link${isActive ? " active" : ""}" href="${esc(href)}"${isActive ? ' aria-current="page"' : ""} title="${esc(label)}" data-label="${esc(label)}" aria-label="${esc(aria)}">${icon(ic, "wicon md")}${badgeHtml}</a>`;
+  };
+  const brandSvg = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.6" fill="#fffbeb"/><g stroke="#fffbeb" stroke-width="2" stroke-linecap="round" opacity=".92"><path d="M12 2.8v2.5M12 18.7v2.5M2.8 12h2.5M18.7 12h2.5M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8"/></g></svg>`;
   return `<nav class="rail" aria-label="${esc(t("home.railMenu"))}">
-    <a class="rail-brand" href="/" aria-label="${esc(t("meta.appName"))}" title="${esc(t("meta.appName"))}"><span aria-hidden="true">☀</span></a>
-    ${links}
+    <a class="rail-brand" href="/" aria-label="${esc(t("meta.appName"))}" title="${esc(t("meta.appName"))}">${brandSvg}</a>
+    ${main.map(link).join("")}
+    <span class="rail-sep" aria-hidden="true"></span>
+    ${bottom.map(link).join("")}
   </nav>`;
 }
 
