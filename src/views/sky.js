@@ -34,7 +34,6 @@ function skyFx() {
     <div class="fx fx-cloud fx-c2"></div>
     <div class="fx fx-cloud fx-c3"></div>
     <div class="fx fx-stars"></div>
-    <div class="fx fx-rain"></div>
     <div class="fx fx-snow"></div>
     <div class="fx fx-bolt"></div>
   </div>`;
