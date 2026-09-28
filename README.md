@@ -1,11 +1,51 @@
-# Myanmar Weather Dashboard — Tech Stack 2
+<img src="assets/banner.svg" alt="Myanmar Weather Dashboard — animated banner" width="100%"/>
 
-Bilingual (မြန်မာ / English) weather dashboard for Myanmar. Built with **Tech Stack 2**:
-Node.js + Express backend, `node:sqlite` persistence, vanilla JS frontend rendered
-server-side (no build step, no TypeScript, no frontend framework). Weather data from
-[Open-Meteo](https://open-meteo.com/) (free, no API key).
+<div align="center">
 
-## Quick start
+[![Live Demo](https://img.shields.io/badge/%F0%9F%8C%90_Live_Demo-onrender.com-0284c7?style=for-the-badge)](https://myanmar-weather-dashboard.onrender.com/)
+[![AI Forecast](https://img.shields.io/badge/%F0%9F%A4%96_AI_Forecast-/ai-7c3aed?style=for-the-badge)](https://myanmar-weather-dashboard.onrender.com/ai)
+[![Node.js](https://img.shields.io/badge/Node.js-22.5%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Bilingual](https://img.shields.io/badge/%E1%80%BB%E1%80%99%E1%80%94%E1%80%B9%E1%80%99%E1%80%AC_%7C_English-Bilingual-f59e0b?style=for-the-badge)](#)
+[![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)](LICENSE)
+
+**မြန်မာတစ်နိုင်ငံလုံးအတွက် လှပတိကျတဲ့ မိုးလေဝသဒက်ရှ်ဘုတ် — AI ခန့်မှန်းချက်တွေနဲ့အတူ**
+
+*A beautiful bilingual weather dashboard for Myanmar, with AI-powered climate forecasts.*
+
+[🚀 Live Demo](https://myanmar-weather-dashboard.onrender.com/) ·
+[🤖 AI Forecast](https://myanmar-weather-dashboard.onrender.com/ai) ·
+[🗺️ Map](https://myanmar-weather-dashboard.onrender.com/map) ·
+[⚠️ Alerts](https://myanmar-weather-dashboard.onrender.com/alerts)
+
+</div>
+
+---
+
+## ✨ Features · လုပ်ဆောင်ချက်များ
+
+| | |
+|---|---|
+| 🏠 **Dashboard** | လက်ရှိရာသီဥတု၊ ၂၄ နာရီခန့်မှန်းချက်၊ ၇ ရက်ခန့်မှန်းချက်၊ ၁၂ မြို့လုံးခြုံငုံသုံးသပ်ချက် — current conditions, hourly & 7-day forecasts, 12-city overview |
+| 🤖 **AI Forecast** | GPT / Claude model ၅ မျိုးနဲ့ မိုးလေဝသခန့်မှန်းချက်၊ ရာသီဥတုခန့်မှန်းချက်၊ နက်ရှိုင်းတဲ့သုံးသပ်ချက် — professional chart တွေပါတဲ့ bilingual report + PDF |
+| 🔍 **Search** | ၁၂ မြို့ local search + Open-Meteo geocoding (Myanmar-biased), မကြာသေးမီကရှာဖွေမှုများ |
+| ⚠️ **Alerts** | မိုးကြိုး၊ မိုးကြီး/ရေကြီး၊ အပူလှိုင်း၊ လေပြင်း၊ အအေးပိုင်း သတိပေးချက်များ + admin announcements |
+| 🗺️ **Map** | အပူချိန် / မိုး / လေ / သတိပေးချက် layer တွေနဲ့ interactive map |
+| ❤️ **Favorites** | မြို့တွေသိမ်း၊ နှိုင်းယှဉ်၊ အစဉ်လိုက်၊ default သတ်မှတ် |
+| 🎨 **Design** | Glassmorphism, gradient icon rail, light/dark/system theme, မြန်မာ default |
+| 🛡️ **Resilience** | Server-side cache + MET Norway fallback + circuit breaker — provider ကျသွားလည်း data မပြတ် |
+
+## 🤖 AI မိုးလေဝသခန့်မှန်းချက်
+
+`/ai` မှာ model ၅ မျိုးထဲကရွေးပြီး သုံးသပ်ချက်ထုတ်နိုင်တယ် —
+`gpt-5.6-sol` · `claude-fable-5` · `claude-opus-5` · `claude-sonnet-5` · `claude-fable-5.1`
+
+- 🔑 API key ကို `/ai/setup` မှာထည့် — **AES-256-GCM** နဲ့ encrypt, server-side ပဲခေါ်တယ်၊ frontend ကိုဘယ်တော့မှမရောက်
+- 📊 Report တိုင်းမှာ **chart ၄ ခု** (၇ ရက်အပူချိန်၊ ၂၄ နာရီမျဉ်း၊ မိုးရွာနိုင်ခြေ၊ လေတိုက်နှုန်း) + **KPI card ၆ ခု** + ၇ ရက်ဇယား + ရာသီဥတုနှိုင်းယှဉ်ချက်
+- 🖨️ **Print → PDF** — မြန်မာစာအက္ခရာပုံမှန်ထွက်တဲ့ A4 professional report
+- 🌧️ မြန်မာ့ရာသီဥတုဗဟုသုတ (မုတ်သုံ၊ ဆိုင်ကလုန်းရာသီ၊ ENSO၊ စိုက်ပျိုးရေးပြက္ခဒိန်) နဲ့ prompt တိုင်းကို grounding လုပ်ထားတယ်
+- 📅 တစ်နေ့ ၁၀ ကြိမ် (configurable)
+
+## 🚀 Quick Start
 
 Requires **Node.js 22.5+** (`node:sqlite`).
 
@@ -14,101 +54,60 @@ npm install
 npm start
 ```
 
-Open http://localhost:3200 (override with `PORT=3200`). The SQLite database is
-created at `data/app.db` on first boot (WAL mode, gitignored).
+Open http://localhost:3200 (override with `PORT`). SQLite DB auto-created at `data/app.db` (WAL mode, gitignored) and seeded with 12 cities + an admin account (`admin@example.com` — ⚠️ change the default password immediately).
 
-On boot the database is migrated and seeded:
+## ⚙️ Environment Variables
 
-- the 12 major cities (Yangon, Mandalay, Naypyidaw, Bago, Mawlamyine, Pathein,
-  Taunggyi, Sittwe, Myitkyina, Monywa, Dawei, Hpa-An)
-- an admin account: **admin@example.com / admin123**
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3200` | HTTP port |
+| `AI_API_BASE` | `https://claude-n-codex.com:8443/v1` | AI gateway (Anthropic-format) |
+| `AI_KEY_SECRET` | *(random per boot)* | Encrypts stored API keys — **set this in production**, or keys break on restart |
+| `AI_DAILY_LIMIT` | `10` | AI analyses per user per day |
 
-> ⚠️ The server prints a boot warning while the admin account still uses the
-> default password. There is no password-change UI in the MVP — rotate it by
-> deleting and re-creating the account, or update the hash directly in sqlite.
-
-## Features (MVP)
-
-- Home dashboard: current conditions, 24-hour hourly forecast, 7-day daily
-  forecast (expandable), 12-city national overview, derived severe-weather alerts
-- Location search: local 12-city search first, then Open-Meteo geocoding
-  (Myanmar-biased), recent locations in localStorage for guests, approximate
-  geolocation with denied/unavailable/timeout states
-- Alerts page: derived alerts (thunderstorm, flood/heavy rain, heat, wind, cold)
-  across all 12 cities + manual admin announcements; registered users can
-  subscribe per location with a severity threshold
-- Map page: Leaflet via CDN, loaded **only** when the user clicks "load map";
-  temperature / rain / wind / alert layers; graceful fallback message
-- Favorites (registered users): full CRUD, set default, reorder (up/down),
-  compare current conditions across favorites
-- Settings: language (my/en, default my), temperature (°C/°F), wind (km/h,
-  mph, m/s), time format (12/24h), theme (light/dark/system). Guests → cookies +
-  localStorage; users → database (+ cookies for rendering)
-- Auth: hand-rolled — scrypt password hashing, random session tokens in
-  httpOnly `SameSite=Lax` cookies, 30-day sessions, role-based access
-  (user/admin), account deletion
-- Admin placeholder (admin role only): supported locations, users, announcement
-  publishing, provider fetch log
-- Resilience: server-side cache with TTLs (current 10 min, forecasts 1 h,
-  alerts 30 min); provider failure → last-known-good with a clear stale-data
-  indicator; `weather_fetch_log` table records every attempt
-- Rate limiting (in-memory): auth endpoints 10/10 min, geocode 30/min per IP
-
-## Deferred / not in MVP
-
-- **Email** (verification, password reset, alert emails): there is no mail
-  provider in Tech Stack 2. Account signup signs users in directly.
-- Password change / reset UI.
-- Admin management UI is a read-only placeholder (+ announcement publishing).
-- Phase 2 features: push notifications, agricultural insights, travel planner,
-  historical data, advanced map layers, PWA, community reports, public display
-  mode, partner API.
-
-## Project layout
+## 🏗️ Project Structure
 
 ```
 src/
   server.js        entry: boots DB, seeds, starts Express
   app.js           Express app factory + middleware
-  db.js            node:sqlite schema, seed, admin check
-  auth.js          scrypt hashing, session tokens/cookies
-  ratelimit.js     in-memory rate limiter
-  lib/             i18n.js (my/en dictionaries), locations.js, format.js,
-                   prefs.js (cookie/DB preference resolution), validate.js
-  weather/         open-meteo.js (provider + geocode), codes.js (WMO codes +
-                   alert derivation), service.js (TTL cache + stale fallback)
-  views/           layout.js, widgets.js, icons.js, pages/*.js (HTML templates)
-  routes/          pages.js (GET), auth.js (signup/login/logout), api.js
+  db.js            node:sqlite schema + seed
+  auth.js          scrypt hashing, session cookies, roles
+  ai/              models.js, crypto.js (AES-256-GCM), snapshot.js, charts.js (SVG)
+  weather/         open-meteo.js, metno.js (fallback), codes.js, service.js (cache + circuit breaker)
+  views/           layout.js, widgets.js, icons.js, pages/*.js (server-rendered HTML)
+  routes/          pages.js, auth.js, api.js, ai.js
 public/
-  css/style.css    hand-written, mobile-first, dark mode via .dark
-  js/              search.js, recent.js, geo.js, map.js (vanilla, no build)
-data/              app.db (created on boot, gitignored)
+  css/style.css    hand-written, glassmorphism, dark mode, A4 print styles
+  js/              vanilla JS, no build step
+assets/            README banner + footer art (animated SVG)
 ```
 
-## Security notes
+## 🛣️ Roadmap
 
-- Passwords: scrypt (N=16384, r=8, p=1, 64-byte key), random 16-byte salt,
-  `crypto.timingSafeEqual` compare.
-- Sessions: 32-byte random hex tokens, httpOnly + SameSite=Lax, 30-day expiry,
-  stored server-side; expired sessions are pruned on login.
-- All mutations validate input server-side; coordinates are range-checked;
-  error pages never leak internals.
-- CSRF: mitigated via SameSite=Lax on the session cookie. Dedicated CSRF tokens
-  are a hardening TODO before public deployment.
+- [ ] 📧 Email alerts (verification, password reset, alert emails)
+- [ ] 🌱 Agricultural insights for farmers
+- [ ] 🧳 Travel planner
+- [ ] 🔔 Push notifications + 📱 PWA
+- [ ] 👥 Community weather reports
 
-## Testing
+## 🤝 Contributing
 
-```bash
-# syntax-check all server + client JS
-for f in $(find src public/js -name '*.js'); do node --check "$f" || break; done
-```
+PR တွေကြိုဆိုပါတယ်! *PRs welcome.*
 
-Manual smoke test (server running on :3200):
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit (`git commit -m 'Add amazing feature'`)
+4. Push & open a Pull Request
 
-```bash
-curl -s http://localhost:3200/ | grep -o 'ရန်ကုန်' | head -1
-curl -s http://localhost:3200/api/geocode?q=taunggyi | head -c 200
-# auth round-trip
-curl -s -c /tmp/jar -X POST -d 'email=t@t.mm&password=password123&name=Test' http://localhost:3200/signup -o /dev/null -w '%{http_code}\n'
-curl -s -b /tmp/jar http://localhost:3200/favorites -o /dev/null -w '%{http_code}\n'
-```
+## 📄 License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+<img src="assets/footer.svg" alt="animated wave footer" width="100%"/>
+<br/>
+Made with ☀️ in Myanmar
+</div>
