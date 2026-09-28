@@ -6,7 +6,7 @@
 const fs = require("fs");
 const path = require("path");
 const { esc } = require("../lib/format");
-const { dashRail } = require("./widgets");
+const { dashRail, dashTopbar } = require("./widgets");
 
 /**
  * Cache-busting version for static assets. Browsers cache /css/style.css for
@@ -52,10 +52,11 @@ function layout(ctx, bodyHtml) {
   const { lang, t, user, prefs, title, active } = ctx;
   const scripts = ctx.scripts || [];
   const flash = ctx.flash || null;
-  // Dashboard shell mode (home page): icon rail instead of the top header.
+  // Dashboard shell mode: icon rail + topbar on every page (default).
   const dashMode = !!ctx.dash;
   const bodyCls = [ctx.bodyClass, dashMode ? "dashmode" : ""].filter(Boolean).join(" ");
   const bodyClass = bodyCls ? ` class="${esc(bodyCls)}"` : "";
+  const topbarHtml = dashMode ? dashTopbar(ctx) : "";
 
   const langSwitch = `
     <form class="langswitch" method="post" action="/api/prefs" aria-label="${esc(t("settings.language"))}">
@@ -105,7 +106,7 @@ ${dashMode ? dashRail(ctx, ctx.alertCount || 0) : `<header class="siteheader">
     <div class="headeractions">${langSwitch}${authArea}</div>
   </div>
 </header>`}
-<main id="main" class="${dashMode ? "dashmain" : "wrap"}">${flashHtml}${bodyHtml}</main>
+<main id="main" class="${dashMode ? "dashmain" : "wrap"}">${flashHtml}${topbarHtml}${bodyHtml}</main>
 <footer class="sitefooter">
   <div class="wrap footerinner">
     <p>${esc(t("footer.tagline"))}</p>
@@ -134,6 +135,9 @@ function pageCtx(req, db, opts) {
     path: req.originalUrl || req.path || "/",
     scripts: opts.scripts || [],
     flash: null,
+    // Every page uses the dashboard shell (icon rail + topbar) so the
+    // whole site shares one design language. Opt out with { dash: false }.
+    dash: opts.dash !== false,
   };
   const q = req.query || {};
   if (q.ok) ctx.flash = { kind: "ok", text: bound(q.ok) || q.ok };

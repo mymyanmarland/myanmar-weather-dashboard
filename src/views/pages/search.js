@@ -27,10 +27,7 @@ function searchPage(ctx, data) {
       : `<p class="notice">${esc(t("search.noResults"))}</p>`;
   }
   return `
-  <div class="pagehead"><div>
-    <h1>${esc(t("search.title"))}</h1>
-    <p class="muted">${esc(t("search.subtitle"))}</p>
-  </div></div>
+  <p class="muted pagelead">${esc(t("search.subtitle"))}</p>
   <section class="card">
     <form method="get" action="/search" class="searchform" role="search">
       <input id="search-input" type="search" name="q" value="${esc(q)}"

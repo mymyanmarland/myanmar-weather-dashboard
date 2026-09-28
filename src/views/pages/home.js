@@ -3,7 +3,7 @@
 // sunrise/sunset), hourly strip, 7-day rows, alerts, 12-city overview.
 "use strict";
 
-const { esc, formatDateTime, localeFor } = require("../../lib/format");
+const { esc, formatDateTime } = require("../../lib/format");
 const { locationDisplayName, locationHierarchy } = require("../../lib/locations");
 const { staleBanner, alertCard, dashHero, hourlyStrip, dailyRows, uvGauge, sunArc, miniMap, overviewGrid } = require("../widgets");
 const { icon } = require("../icons");
@@ -19,37 +19,6 @@ const { skyTheme, skyFx } = require("../sky");
  *   isDefaultLoc: bool, user
  * }
  */
-
-function topbar(ctx, locName) {
-  const { t, lang, prefs, user } = ctx;
-  const now = new Date();
-  const timeStr = new Intl.DateTimeFormat(localeFor(lang), {
-    timeZone: "Asia/Yangon", hour: "numeric", minute: "2-digit",
-    hour12: prefs.timeFormat === "12",
-  }).format(now);
-  const dateStr = new Intl.DateTimeFormat(localeFor(lang), {
-    timeZone: "Asia/Yangon", weekday: "short", day: "numeric", month: "short",
-  }).format(now);
-  const n = ctx.alertCount || 0;
-  const avatar = user
-    ? `<a class="tavatar" href="/settings" title="${esc(user.name || user.email)}" aria-label="${esc(t("nav.settings"))}">${esc((user.name || user.email || "U").trim().charAt(0).toUpperCase())}</a>`
-    : `<a class="tavatar tavatar-guest" href="/login" aria-label="${esc(t("nav.login"))}">${icon("user", "wicon sm")}</a>`;
-  return `<header class="topbar">
-    <div class="tloc">
-      <strong>${esc(locName)}</strong>
-      <span class="muted">${esc(timeStr)} · ${esc(dateStr)}</span>
-    </div>
-    <form class="tsearch" method="get" action="/search" role="search">
-      ${icon("search", "wicon sm")}
-      <input type="search" name="q" placeholder="${esc(t("home.searchPlaceholder"))}" aria-label="${esc(t("nav.search"))}" autocomplete="off">
-    </form>
-    <div class="tactions">
-      <a class="ticonbtn" href="/alerts" aria-label="${esc(t("nav.alerts"))}${n ? ` (${n})` : ""}">${icon("bell", "wicon md")}${n ? `<span class="tbadge" aria-hidden="true">${n > 9 ? "9+" : n}</span>` : ""}</a>
-      <a class="ticonbtn" href="/settings" aria-label="${esc(t("nav.settings"))}">${icon("gear", "wicon md")}</a>
-      ${avatar}
-    </div>
-  </header>`;
-}
 
 function favoriteButton(ctx, data) {
   const { t, user } = ctx;
@@ -77,6 +46,8 @@ function homePage(ctx, data) {
 
   const locName = locationDisplayName(data.loc, lang);
   const hier = data.loc.stateEn || data.loc.stateMy ? locationHierarchy(data.loc, lang) : locName;
+  // The dash shell (layout) renders the topbar; give it the location heading.
+  ctx.topbarHeading = locName;
 
   const alerts = data.alerts && data.alerts.data ? data.alerts.data : [];
   ctx.alertCount = alerts.length;
@@ -134,7 +105,6 @@ function homePage(ctx, data) {
 
   return `
     ${skyFx()}
-    ${topbar(ctx, locName)}
     ${staleHtml}
     <div class="dash-grid">
       <div class="dhero-wrap">${heroHtml}</div>

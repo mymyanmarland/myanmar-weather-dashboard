@@ -8,12 +8,12 @@ const { locationDisplayName } = require("../../lib/locations");
 function adminPage(ctx, data) {
   const { t, lang, prefs, user } = ctx;
   if (!user) {
-    return `<div class="pagehead"><div><h1>${esc(t("admin.title"))}</h1></div></div>
+    return `<p class="muted pagelead">${esc(t("admin.subtitle"))}</p>
       <section class="card center"><p class="muted">${esc(t("admin.signInRequired"))}</p>
       <p><a class="btn btn-primary" href="/login">${esc(t("nav.login"))}</a></p></section>`;
   }
   if (user.role !== "admin") {
-    return `<div class="pagehead"><div><h1>${esc(t("admin.title"))}</h1></div></div>
+    return `<p class="muted pagelead">${esc(t("admin.subtitle"))}</p>
       <section class="card center"><p class="error">${esc(t("admin.notAdmin"))}</p></section>`;
   }
 
@@ -35,11 +35,8 @@ function adminPage(ctx, data) {
     <td class="small">${esc(formatDateTime(f.fetched_at, lang, prefs.timeFormat))}</td></tr>`).join("");
 
   return `
-  <div class="pagehead"><div>
-    <h1>${esc(t("admin.title"))}</h1>
-    <p class="muted">${esc(t("admin.subtitle"))}</p>
-    <p class="notice">${esc(t("admin.stubNote"))}</p>
-  </div></div>
+  <p class="muted pagelead">${esc(t("admin.subtitle"))}</p>
+  <p class="notice">${esc(t("admin.stubNote"))}</p>
   <section class="card">
     <h2 class="cardtitle">${esc(t("admin.providerTitle"))}</h2>
     <table class="table"><thead><tr><th>kind</th><th>key</th><th>status</th><th>time</th></tr></thead>

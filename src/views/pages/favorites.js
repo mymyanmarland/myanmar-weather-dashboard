@@ -9,10 +9,7 @@ function favoritesPage(ctx, data) {
   const { t, lang, prefs } = ctx;
   if (!ctx.user) {
     return `
-    <div class="pagehead"><div>
-      <h1>${esc(t("favorites.title"))}</h1>
-      <p class="muted">${esc(t("favorites.subtitle"))}</p>
-    </div></div>
+    <p class="muted pagelead">${esc(t("favorites.subtitle"))}</p>
     <section class="card center">
       <h2>${esc(t("favorites.signInRequired"))}</h2>
       <p class="muted">${esc(t("favorites.signInRequiredDesc"))}</p>
@@ -28,8 +25,8 @@ function favoritesPage(ctx, data) {
         <div class="citygrid">${favs.map((f) => {
           const info = f.current ? codeInfo(f.current.weatherCode) : null;
           const temp = f.current ? formatTemp(f.current.temperatureC, prefs.tempUnit) : "—";
-          const name = lang === "my" && f.name_my ? f.name_my : f.nameEn;
-          return `<a class="citycell" href="/?lat=${esc(f.lat)}&lon=${esc(f.lon)}&name=${encodeURIComponent(f.nameEn)}">
+          const name = lang === "my" && f.name_my ? f.name_my : f.name_en;
+          return `<a class="citycell" href="/?lat=${esc(f.lat)}&lon=${esc(f.lon)}&name=${encodeURIComponent(f.name_en)}">
             ${info ? icon(f.current.isDay ? info.iconDay : info.iconNight, "wicon md") : ""}
             <span class="cityname">${esc(name)}${f.is_default ? ` <span class="badge">${esc(t("favorites.isDefault"))}</span>` : ""}</span>
             <span class="citytemp">${esc(temp)}</span>
@@ -40,7 +37,7 @@ function favoritesPage(ctx, data) {
 
   const list = favs.length
     ? `<ul class="favlist">${favs.map((f, i) => {
-        const name = lang === "my" && f.name_my ? f.name_my : f.nameEn;
+        const name = lang === "my" && f.name_my ? f.name_my : f.name_en;
         return `<li class="favrow">
           <span class="favname"><b>${esc(name)}</b><small>${esc(f.lat.toFixed(2))}, ${esc(f.lon.toFixed(2))}</small>${f.is_default ? ` <span class="badge">${esc(t("favorites.isDefault"))}</span>` : ""}</span>
           <span class="favactions">
@@ -54,10 +51,7 @@ function favoritesPage(ctx, data) {
     : `<p class="notice">${esc(t("favorites.noFavorites"))}</p>`;
 
   return `
-  <div class="pagehead"><div>
-    <h1>${esc(t("favorites.title"))}</h1>
-    <p class="muted">${esc(t("favorites.subtitle"))}</p>
-  </div></div>
+  <p class="muted pagelead">${esc(t("favorites.subtitle"))}</p>
   ${compare}
   <section class="card"><h2 class="cardtitle">${esc(t("favorites.title"))}</h2>${list}</section>`;
 }

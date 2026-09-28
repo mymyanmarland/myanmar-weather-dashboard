@@ -13,11 +13,8 @@ function settingsPage(ctx) {
   const { t, prefs, user } = ctx;
   const note = user ? t("settings.accountNote") : t("settings.guestNote");
   return `
-  <div class="pagehead"><div>
-    <h1>${esc(t("settings.title"))}</h1>
-    <p class="muted">${esc(t("settings.subtitle"))}</p>
-    <p class="muted small">${esc(note)}</p>
-  </div></div>
+  <p class="muted pagelead">${esc(t("settings.subtitle"))}</p>
+  <p class="muted small pagelead">${esc(note)}</p>
   <section class="card">
     <form method="post" action="/api/prefs" class="formgrid">
       <input type="hidden" name="redirect" value="/settings?ok=settings.saved">

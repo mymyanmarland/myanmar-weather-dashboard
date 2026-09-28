@@ -228,6 +228,7 @@ main.wrap { padding-top: 1.25rem; padding-bottom: 2.5rem; display: flex; flex-di
 .pagehead { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
 .pagehead h1 { margin: 0 0 .25rem; font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 800; letter-spacing: -.02em; }
 .pagehead p { margin: 0; }
+.pagelead { margin: 0 0 1rem; font-size: .98rem; }
 .muted { color: var(--muted); }
 .small { font-size: .85rem; }
 .center { text-align: center; }

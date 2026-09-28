@@ -9,10 +9,7 @@ function mapPage(ctx) {
   // City coords embedded for the client loader (no extra request needed).
   const cities = MYANMAR_LOCATIONS.map((c) => ({ id: c.id, lat: c.lat, lon: c.lon }));
   return `
-  <div class="pagehead"><div>
-    <h1>${esc(t("mapPage.title"))}</h1>
-    <p class="muted">${esc(t("mapPage.subtitle"))}</p>
-  </div></div>
+  <p class="muted pagelead">${esc(t("mapPage.subtitle"))}</p>
   <section class="card mapcard">
     <div id="map-fallback" class="mapfallback">
       <p>${esc(t("mapPage.subtitle"))}</p>

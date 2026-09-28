@@ -66,10 +66,7 @@ function alertsPage(ctx, data) {
   }
 
   return `
-  <div class="pagehead"><div>
-    <h1>${esc(t("alertsPage.title"))}</h1>
-    <p class="muted">${esc(t("alertsPage.subtitle"))}</p>
-  </div></div>
+  <p class="muted pagelead">${esc(t("alertsPage.subtitle"))}</p>
   ${alertsHtml}
   ${announceHtml}
   ${subHtml}`;

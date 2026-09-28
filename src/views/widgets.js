@@ -3,7 +3,7 @@
 // sunrise/sunset arc, mini map preview, sidebar rail.
 "use strict";
 
-const { esc, formatTemp, formatWind, formatTime, formatHourLabel, formatDate, formatWeekday, formatDateTime, formatVisibility, compassKey, uvBand, codeInfo } = (() => {
+const { esc, formatTemp, formatWind, formatTime, formatHourLabel, formatDate, formatWeekday, formatDateTime, formatVisibility, localeFor, compassKey, uvBand, codeInfo } = (() => {
   const f = require("../lib/format");
   const { codeInfo } = require("../weather/codes");
   return { ...f, codeInfo };
@@ -79,6 +79,44 @@ function dashRail(ctx, alertCount) {
     <a class="rail-brand" href="/" aria-label="${esc(t("meta.appName"))}" title="${esc(t("meta.appName"))}"><span aria-hidden="true">☀</span></a>
     ${links}
   </nav>`;
+}
+
+/**
+ * Dashboard topbar, rendered by layout() for every dash-shell page:
+ * contextual heading + Yangon time/date, global search, action icons.
+ * The home page sets ctx.topbarHeading to the location name; every other
+ * page falls back to its <title>.
+ */
+function dashTopbar(ctx) {
+  const { t, lang, prefs, user } = ctx;
+  const now = new Date();
+  const timeStr = new Intl.DateTimeFormat(localeFor(lang), {
+    timeZone: "Asia/Yangon", hour: "numeric", minute: "2-digit",
+    hour12: prefs.timeFormat === "12",
+  }).format(now);
+  const dateStr = new Intl.DateTimeFormat(localeFor(lang), {
+    timeZone: "Asia/Yangon", weekday: "short", day: "numeric", month: "short",
+  }).format(now);
+  const n = ctx.alertCount || 0;
+  const heading = ctx.topbarHeading || ctx.title || "";
+  const avatar = user
+    ? `<a class="tavatar" href="/settings" title="${esc(user.name || user.email)}" aria-label="${esc(t("nav.settings"))}">${esc((user.name || user.email || "U").trim().charAt(0).toUpperCase())}</a>`
+    : `<a class="tavatar tavatar-guest" href="/login" aria-label="${esc(t("nav.login"))}">${icon("user", "wicon sm")}</a>`;
+  return `<header class="topbar">
+    <div class="tloc">
+      <strong>${esc(heading)}</strong>
+      <span class="muted">${esc(timeStr)} · ${esc(dateStr)}</span>
+    </div>
+    <form class="tsearch" method="get" action="/search" role="search">
+      ${icon("search", "wicon sm")}
+      <input type="search" name="q" placeholder="${esc(t("home.searchPlaceholder"))}" aria-label="${esc(t("nav.search"))}" autocomplete="off">
+    </form>
+    <div class="tactions">
+      <a class="ticonbtn" href="/alerts" aria-label="${esc(t("nav.alerts"))}${n ? ` (${n})` : ""}">${icon("bell", "wicon md")}${n ? `<span class="tbadge" aria-hidden="true">${n > 9 ? "9+" : n}</span>` : ""}</a>
+      <a class="ticonbtn" href="/settings" aria-label="${esc(t("nav.settings"))}">${icon("gear", "wicon md")}</a>
+      ${avatar}
+    </div>
+  </header>`;
 }
 
 /**
@@ -307,6 +345,6 @@ function overviewGrid(ctx, overview) {
 
 module.exports = {
   staleBanner, severityBadge, alertCard, weatherLabel,
-  dashRail, dashHero, hourlyStrip, dailyRows, uvGauge, sunArc, miniMap,
+  dashRail, dashTopbar, dashHero, hourlyStrip, dailyRows, uvGauge, sunArc, miniMap,
   overviewGrid,
 };
