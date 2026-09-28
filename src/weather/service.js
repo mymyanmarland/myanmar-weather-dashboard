@@ -6,6 +6,7 @@
 "use strict";
 
 const { openMeteoProvider, geocodeSearch } = require("./open-meteo");
+const { metNoProvider } = require("./met-no");
 
 const TTL = {
   current: 10 * 60 * 1000,
@@ -16,6 +17,32 @@ const TTL = {
 
 let provider = openMeteoProvider;
 let db = null;
+
+// Circuit breaker: when the primary provider keeps failing (e.g. sustained
+// 429 throttling of our host's IP), skip it for a cooldown and go straight
+// to the backup provider instead of burning seconds on doomed retries.
+let primaryDownUntil = 0;
+const PRIMARY_COOLDOWN_MS = 5 * 60 * 1000;
+
+async function tryProviders(fn) {
+  if (Date.now() < primaryDownUntil) {
+    return fn(metNoProvider);
+  }
+  try {
+    const result = await fn(provider);
+    primaryDownUntil = 0; // primary healthy again
+    return result;
+  } catch (primaryErr) {
+    try {
+      const fallbackResult = await fn(metNoProvider);
+      primaryDownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
+      return fallbackResult;
+    } catch {
+      primaryDownUntil = Date.now() + PRIMARY_COOLDOWN_MS;
+      throw primaryErr;
+    }
+  }
+}
 
 function setDb(database) {
   db = database;
@@ -86,19 +113,19 @@ async function withCache(kind, loc, fetcher) {
 }
 
 function getCurrentWeather(loc) {
-  return withCache("current", loc, () => provider.getCurrentWeather(loc));
+  return withCache("current", loc, () => tryProviders((p) => p.getCurrentWeather(loc)));
 }
 
 function getHourlyForecast(loc) {
-  return withCache("hourly", loc, () => provider.getHourlyForecast(loc));
+  return withCache("hourly", loc, () => tryProviders((p) => p.getHourlyForecast(loc)));
 }
 
 function getDailyForecast(loc) {
-  return withCache("daily", loc, () => provider.getDailyForecast(loc));
+  return withCache("daily", loc, () => tryProviders((p) => p.getDailyForecast(loc)));
 }
 
 function getWeatherAlerts(loc, areaName) {
-  return withCache("alerts", loc, () => provider.getWeatherAlerts(loc, areaName));
+  return withCache("alerts", loc, () => tryProviders((p) => p.getWeatherAlerts(loc, areaName)));
 }
 
 /** Current conditions for the national overview (12 cities), in parallel. */
