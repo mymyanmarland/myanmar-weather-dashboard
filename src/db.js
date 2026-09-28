@@ -136,6 +136,13 @@ function migrate(db) {
       PRIMARY KEY (user_id, day)
     );
   `);
+  // AI report snapshots for charts/KPIs (idempotent; legacy rows keep '').
+  try {
+    const cols = db.prepare("PRAGMA table_info(ai_reports)").all().map((c) => c.name);
+    if (!cols.includes("data_json")) {
+      db.exec("ALTER TABLE ai_reports ADD COLUMN data_json TEXT NOT NULL DEFAULT ''");
+    }
+  } catch { /* ignore */ }
 }
 
 function seed(db) {

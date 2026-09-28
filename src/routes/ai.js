@@ -14,6 +14,7 @@ const { MODELS, getModel, apiBase, DEFAULT_API_BASE } = require("../ai/models");
 const { encrypt, decrypt, isEphemeral } = require("../ai/crypto");
 const { chat, probe, ProviderError } = require("../ai/providers");
 const { buildPrompt, TYPES } = require("../ai/prompts");
+const { buildSnapshot } = require("../ai/snapshot");
 const { rateLimit } = require("../ratelimit");
 const { DEFAULT_LOCATION, MYANMAR_LOCATIONS, getLocationById, locationDisplayName } = require("../lib/locations");
 
@@ -224,9 +225,10 @@ router.post("/api/ai/analyze", requireLogin, analyzeLimiter, async (req, res) =>
     }
 
     const info = db.prepare(
-      `INSERT INTO ai_reports (user_id, type, location_name, lat, lon, model, markdown, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run(req.user.id, type, areaName, loc.lat, loc.lon, m.name, markdown, new Date().toISOString());
+      `INSERT INTO ai_reports (user_id, type, location_name, lat, lon, model, markdown, data_json, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(req.user.id, type, areaName, loc.lat, loc.lon, m.name, markdown,
+      JSON.stringify(buildSnapshot(data, type)), new Date().toISOString());
     res.redirect(`/ai/reports/${info.lastInsertRowid}`);
   } catch (err) {
     console.error("[ai-analyze]", err && err.message);
