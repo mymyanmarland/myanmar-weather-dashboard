@@ -8,7 +8,37 @@ const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const TZ = "Asia/Yangon";
 
-async function omFetch(url, timeoutMs = 12000) {
+// The free Open-Meteo API rate-limits (429) aggressive parallel bursts,
+// especially from shared hosting egress IPs. So: at most a few concurrent
+// requests process-wide, and 429s are retried with backoff instead of
+// hammering through.
+const MAX_CONCURRENT = 4;
+let activeFetches = 0;
+const fetchWaiters = [];
+
+function acquireSlot() {
+  if (activeFetches < MAX_CONCURRENT) {
+    activeFetches++;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => fetchWaiters.push(resolve));
+}
+
+function releaseSlot() {
+  activeFetches--;
+  const next = fetchWaiters.shift();
+  if (next) {
+    activeFetches++;
+    next();
+  }
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function omAttempt(url, timeoutMs) {
+  await acquireSlot();
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), timeoutMs);
   try {
@@ -16,10 +46,31 @@ async function omFetch(url, timeoutMs = 12000) {
       headers: { "User-Agent": "myanmar-weather-dashboard-ts2/1.0" },
       signal: ctl.signal,
     });
+    if (res.status === 429) {
+      const retryAfter = Number(res.headers.get("retry-after")) || 0;
+      const err = new Error("Open-Meteo request failed: 429");
+      err.retryable = true;
+      err.retryAfterMs = Math.min(Math.max(retryAfter * 1000, 0), 30000);
+      throw err;
+    }
     if (!res.ok) throw new Error(`Open-Meteo request failed: ${res.status}`);
-    return res.json();
+    return await res.json();
   } finally {
     clearTimeout(timer);
+    releaseSlot();
+  }
+}
+
+async function omFetch(url, timeoutMs = 12000) {
+  const backoffs = [1000, 2500, 6000];
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await omAttempt(url, timeoutMs);
+    } catch (err) {
+      const lastAttempt = attempt >= backoffs.length;
+      if (!err.retryable || lastAttempt) throw err;
+      await sleep(Math.max(err.retryAfterMs || 0, backoffs[attempt]));
+    }
   }
 }
 

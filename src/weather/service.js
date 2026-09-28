@@ -48,6 +48,11 @@ function logFetch(kind, locationKey, ok, error) {
   }
 }
 
+// In-flight dedup: concurrent requests for the same key share one provider
+// fetch instead of each firing their own (e.g. the home page asks for
+// current+daily directly AND via getWeatherAlerts at the same time).
+const inflight = new Map(); // key -> Promise
+
 async function withCache(kind, loc, fetcher) {
   const k = key(kind, loc);
   const now = Date.now();
@@ -55,20 +60,29 @@ async function withCache(kind, loc, fetcher) {
   if (hit && hit.expiresAt > now) {
     return { data: hit.data, fetchedAt: hit.fetchedAt, stale: false };
   }
-  try {
-    const data = await fetcher();
-    const fetchedAt = new Date().toISOString();
-    cache.set(k, { data, fetchedAt, expiresAt: now + TTL[kind] });
-    logFetch(kind, k, true, null);
-    return { data, fetchedAt, stale: false };
-  } catch (err) {
-    logFetch(kind, k, false, String((err && err.message) || err));
-    if (hit) {
-      // Last-known-good fallback, clearly marked stale.
-      return { data: hit.data, fetchedAt: hit.fetchedAt, stale: true };
+  const ongoing = inflight.get(k);
+  if (ongoing) return ongoing;
+  const p = (async () => {
+    try {
+      const data = await fetcher();
+      const fetchedAt = new Date().toISOString();
+      cache.set(k, { data, fetchedAt, expiresAt: Date.now() + TTL[kind] });
+      logFetch(kind, k, true, null);
+      return { data, fetchedAt, stale: false };
+    } catch (err) {
+      logFetch(kind, k, false, String((err && err.message) || err));
+      const lastGood = cache.get(k);
+      if (lastGood) {
+        // Last-known-good fallback, clearly marked stale.
+        return { data: lastGood.data, fetchedAt: lastGood.fetchedAt, stale: true };
+      }
+      throw err;
+    } finally {
+      inflight.delete(k);
     }
-    throw err;
-  }
+  })();
+  inflight.set(k, p);
+  return p;
 }
 
 function getCurrentWeather(loc) {
