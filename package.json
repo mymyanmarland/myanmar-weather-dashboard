@@ -1,0 +1,16 @@
+{
+  "name": "myanmar-weather-dashboard-ts2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Myanmar Weather Dashboard — Tech Stack 2 (Node.js + Express + node:sqlite, vanilla JS)",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
